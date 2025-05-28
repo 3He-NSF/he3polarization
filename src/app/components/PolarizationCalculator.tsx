@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface CalculationParams {
   gasThickness: number;  // atm cm単位
@@ -25,26 +25,12 @@ export default function PolarizationCalculator() {
     relaxationTimeConstant: 100, // デフォルト値: 100時間
   });
 
-  const [theoreticalData, setTheoreticalData] = useState<Array<{time: number, polarization: number}>>([]);
-
-  useEffect(() => {
-    // 理論曲線のデータポイントを生成（24時間分、1分間隔）
-    const newData = Array.from({ length: 24 * 60 + 1 }, (_, i) => {
-      const time = i; // 分単位
-      return {
-        time,
-        polarization: calculatePolarization(time, params)
-      };
-    });
-    setTheoreticalData(newData);
-  }, [params]);
-
   return (
     <div className="p-4 bg-white rounded-lg shadow">
-      <h3 className="text-xl font-bold mb-4">Parameters</h3>
+      <h3 className="text-xl font-bold mb-4">計算パラメータ</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">He-3 gas thickness (atm cm)</label>
+          <label className="block text-sm font-medium text-gray-700">3Heガス厚 (atm cm)</label>
           <input
             type="number"
             value={params.gasThickness}
@@ -55,18 +41,18 @@ export default function PolarizationCalculator() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">initial polarization </label>
+          <label className="block text-sm font-medium text-gray-700">初期偏極度 (%)</label>
           <input
             type="number"
             value={params.initialPolarization}
             onChange={(e) => setParams({ ...params, initialPolarization: Number(e.target.value) })}
             min="0"
-            max="1"
+            max="100"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">relaxation time, T1 (hour)</label>
+          <label className="block text-sm font-medium text-gray-700">緩和時定数 (hour)</label>
           <input
             type="number"
             value={params.relaxationTimeConstant}

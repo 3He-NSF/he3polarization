@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -13,19 +13,34 @@ import {
 } from 'recharts';
 import PolarizationCalculator, { calculatePolarization } from './PolarizationCalculator';
 
-interface DataPoint {
-  time: number;
-  theoretical: number;
-}
-
 export default function PolarizationPlot() {
+  const [params, setParams] = useState({
+    gasThickness: 1.0,
+    initialPolarization: 70,
+    relaxationTimeConstant: 100,
+  });
+
+  const [theoreticalData, setTheoreticalData] = useState<Array<{time: number, theoretical: number}>>([]);
+
+  useEffect(() => {
+    // 理論曲線のデータポイントを生成（24時間分、1分間隔）
+    const newData = Array.from({ length: 24 * 60 + 1 }, (_, i) => {
+      const time = i; // 分単位
+      return {
+        time,
+        theoretical: calculatePolarization(time, params)
+      };
+    });
+    setTheoreticalData(newData);
+  }, [params]);
+
   return (
     <div className="space-y-6">
       <PolarizationCalculator />
 
       <div className="h-[500px] p-4 bg-white rounded-lg shadow">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart>
+          <LineChart data={theoreticalData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="time"
