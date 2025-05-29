@@ -11,7 +11,7 @@ interface CalculationParams {
 export function calculateRelaxationTime(params: CalculationParams): number {
   // TODO: ここに実際の計算式を実装
   // 現在はダミー値を返しています
-  return 100;
+  return params.relaxationTimeConstant;
 }
 
 export function calculatePolarization(time: number, params: CalculationParams): number {

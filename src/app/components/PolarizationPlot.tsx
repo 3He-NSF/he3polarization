@@ -225,8 +225,7 @@ export default function PolarizationPlot() {
       relaxationTimeConstant: tempParams.relaxationTimeConstant
     };
     setParams(newParams);
-    const newHe3Data = calculateHe3Polarization(newParams);
-    setHe3Data(newHe3Data);
+    setHe3Data(calculateHe3Polarization(newParams));
   };
 
   const handleNeutronParamsUpdate = () => {
@@ -235,8 +234,7 @@ export default function PolarizationPlot() {
       neutronParams: tempParams.neutronParams
     };
     setParams(newParams);
-    const newNeutronData = calculateNeutronProperties(newParams);
-    setNeutronData(newNeutronData);
+    setNeutronData(calculateNeutronProperties(newParams));
   };
 
   const handleAxisRangeChange = (graph: 'he3' | 'neutron', field: keyof typeof axisRanges.he3, value: string) => {
@@ -249,18 +247,14 @@ export default function PolarizationPlot() {
     }));
 
     // 新しい値でグラフデータを更新
-    const newHe3Data = calculateHe3Polarization(params);
-    const newNeutronData = calculateNeutronProperties(params);
-    setHe3Data(newHe3Data);
-    setNeutronData(newNeutronData);
+    setHe3Data(calculateHe3Polarization(params));
+    setNeutronData(calculateNeutronProperties(params));
   };
 
   useEffect(() => {
-    const initialHe3Data = calculateHe3Polarization(params);
-    const initialNeutronData = calculateNeutronProperties(params);
-    setHe3Data(initialHe3Data);
-    setNeutronData(initialNeutronData);
-  }, [params, calculateHe3Polarization, calculateNeutronProperties]);
+    setHe3Data(calculateHe3Polarization(params));
+    setNeutronData(calculateNeutronProperties(params));
+  }, [calculateHe3Polarization, calculateNeutronProperties, params]);
 
   // He-3グラフのデータ
   const he3GraphData = he3Data;
@@ -290,8 +284,8 @@ export default function PolarizationPlot() {
     return ticks.sort((a, b) => a - b);
   };
 
-  const generateTicks = (min: number, max: number, isLogScale: boolean) => {
-    if (isLogScale) {
+  const generateTicks = (min: number, max: number, useLogScale: boolean = false) => {
+    if (useLogScale) {
       return generateLogTicks(Math.max(0.1, min), max);
     }
 
