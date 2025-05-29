@@ -221,6 +221,10 @@ export default function PolarizationPlot() {
     setNeutronData(calculateNeutronProperties(params));
   }, [calculateHe3Polarization, calculateNeutronProperties, params]);
 
+  useEffect(() => {
+    setNeutronData(calculateNeutronProperties(params));
+  }, [isLogScale, calculateNeutronProperties, params]);
+
   // He-3グラフのデータ
   const he3GraphData = he3Data;
 
@@ -276,11 +280,6 @@ export default function PolarizationPlot() {
       dataKey: params.xAxisUnit === 'wavelength' ? 'wavelength' : 'energy'
     };
   };
-
-  // const xMin = Number(axisRanges.he3.xMin) || 0;
-  // const xMax = Number(axisRanges.he3.xMax) || 24;
-  // const yMin = Number(axisRanges.he3.yMin) || 0;
-  // const yMax = Number(axisRanges.he3.yMax) || 80;
 
   return (
     <div className="space-y-6">
@@ -561,7 +560,10 @@ export default function PolarizationPlot() {
                       type="radio"
                       className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                       checked={!isLogScale}
-                      onChange={() => setIsLogScale(false)}
+                      onChange={() => {
+                        setIsLogScale(false);
+                        setNeutronData(calculateNeutronProperties(params));
+                      }}
                     />
                     <span className="ml-2 text-sm text-gray-700">
                       Linear
@@ -572,7 +574,10 @@ export default function PolarizationPlot() {
                       type="radio"
                       className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                       checked={isLogScale}
-                      onChange={() => setIsLogScale(true)}
+                      onChange={() => {
+                        setIsLogScale(true);
+                        setNeutronData(calculateNeutronProperties(params));
+                      }}
                     />
                     <span className="ml-2 text-sm text-gray-700">
                       Log
