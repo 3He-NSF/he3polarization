@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -118,74 +118,8 @@ export default function PolarizationPlot() {
 
   const [isLogScale, setIsLogScale] = useState(false);
 
-  const calculateHe3Polarization = (currentParams: Params) => {
-    const xMin = parseFloat(axisRanges.he3.xMin);
-    const xMax = parseFloat(axisRanges.he3.xMax);
-
-    if (isNaN(xMin) || isNaN(xMax) || xMin >= xMax) {
-      console.warn('Invalid range values:', { xMin, xMax });
-      return [];
-    }
-
-    const points: DataPoint[] = [];
-    const step = (xMax - xMin) / 100;
-
-    for (let time = xMin; time <= xMax; time += step) {
-      // 時間経過による偏極度の減衰を計算
-      const he3Polarization = currentParams.initialPolarization *
-        Math.exp(-time / currentParams.relaxationTimeConstant);
-
-      points.push({
-        time,
-        wavelength: currentParams.neutronParams.wavelength,
-        energy: 81.81 / (currentParams.neutronParams.wavelength * currentParams.neutronParams.wavelength),
-        he3Polarization,
-        neutronPolarization: 0,
-        neutronTransmission: 0,
-        figureOfMerit: 0
-      });
-    }
-
-    return points;
-  };
-
-  const calculateNeutronProperties = (currentParams: Params) => {
-    const xMin = parseFloat(axisRanges.neutron.xMin);
-    const xMax = parseFloat(axisRanges.neutron.xMax);
-
-    if (isNaN(xMin) || isNaN(xMax) || xMin >= xMax) {
-      console.warn('Invalid range values:', { xMin, xMax });
-      return [];
-    }
-
-    // ログスケール時は最小値を0.1以上にする
-    const effectiveXMin = isLogScale ? Math.max(0.1, xMin) : xMin;
-    const points: DataPoint[] = [];
-    const numPoints = 200; // ポイント数を増やして滑らかにする
-
-    if (isLogScale) {
-      // ログスケールの場合は等比的にステップを設定
-      const logMin = Math.log10(effectiveXMin);
-      const logMax = Math.log10(xMax);
-      const logStep = (logMax - logMin) / numPoints;
-
-      for (let i = 0; i <= numPoints; i++) {
-        const x = Math.pow(10, logMin + i * logStep);
-        addDataPoint(x, currentParams, points);
-      }
-    } else {
-      // 線形スケールの場合は等間隔でステップを設定
-      const step = (xMax - effectiveXMin) / numPoints;
-      for (let x = effectiveXMin; x <= xMax; x += step) {
-        addDataPoint(x, currentParams, points);
-      }
-    }
-
-    return points;
-  };
-
   // データポイントの計算を別関数に分離
-  const addDataPoint = (x: number, currentParams: Params, points: DataPoint[]) => {
+  const addDataPoint = useCallback((x: number, currentParams: Params, points: DataPoint[]) => {
     const wavelength = currentParams.xAxisUnit === 'wavelength' ? x : Math.sqrt(81.81 / x);
     const energy = currentParams.xAxisUnit === 'wavelength' ? 81.81 / (x * x) : x;
 
@@ -216,26 +150,57 @@ export default function PolarizationPlot() {
       neutronTransmission,
       figureOfMerit
     });
-  };
+  }, []);
 
-  const handleHe3ParamsUpdate = () => {
-    const newParams = {
-      ...params,
-      initialPolarization: tempParams.initialPolarization,
-      relaxationTimeConstant: tempParams.relaxationTimeConstant
-    };
-    setParams(newParams);
-    setHe3Data(calculateHe3Polarization(newParams));
-  };
+  const calculateHe3Polarization = useCallback((currentParams: Params) => {
+    const points: DataPoint[] = [];
+    const xMin = Number(axisRanges.he3.xMin) || 0;
+    const xMax = Number(axisRanges.he3.xMax) || 24;
+    const step = (xMax - xMin) / 100;
 
-  const handleNeutronParamsUpdate = () => {
-    const newParams = {
-      ...params,
-      neutronParams: tempParams.neutronParams
-    };
-    setParams(newParams);
-    setNeutronData(calculateNeutronProperties(newParams));
-  };
+    for (let time = xMin; time <= xMax; time += step) {
+      const he3Polarization = currentParams.initialPolarization *
+        Math.exp(-time / currentParams.relaxationTimeConstant);
+
+      points.push({
+        time,
+        wavelength: currentParams.neutronParams.wavelength,
+        energy: 81.81 / (currentParams.neutronParams.wavelength * currentParams.neutronParams.wavelength),
+        he3Polarization,
+        neutronPolarization: 0,
+        neutronTransmission: 0,
+        figureOfMerit: 0
+      });
+    }
+
+    return points;
+  }, [axisRanges.he3.xMin, axisRanges.he3.xMax]);
+
+  const calculateNeutronProperties = useCallback((currentParams: Params) => {
+    const xMin = Number(axisRanges.neutron.xMin) || 0;
+    const xMax = Number(axisRanges.neutron.xMax) || 10;
+    const effectiveXMin = isLogScale ? Math.max(0.1, xMin) : xMin;
+    const points: DataPoint[] = [];
+    const numPoints = 200;
+
+    if (isLogScale) {
+      const logMin = Math.log10(effectiveXMin);
+      const logMax = Math.log10(xMax);
+      const logStep = (logMax - logMin) / numPoints;
+
+      for (let i = 0; i <= numPoints; i++) {
+        const x = Math.pow(10, logMin + i * logStep);
+        addDataPoint(x, currentParams, points);
+      }
+    } else {
+      const step = (xMax - effectiveXMin) / numPoints;
+      for (let x = effectiveXMin; x <= xMax; x += step) {
+        addDataPoint(x, currentParams, points);
+      }
+    }
+
+    return points;
+  }, [axisRanges.neutron.xMin, axisRanges.neutron.xMax, isLogScale, addDataPoint]);
 
   const handleAxisRangeChange = (graph: 'he3' | 'neutron', field: keyof typeof axisRanges.he3, value: string) => {
     setAxisRanges(prev => ({
@@ -413,7 +378,15 @@ export default function PolarizationPlot() {
         {/* Set Parameters Button */}
         <div className="flex justify-end mb-6">
           <button
-            onClick={handleHe3ParamsUpdate}
+            onClick={() => {
+              const newParams = {
+                ...params,
+                initialPolarization: tempParams.initialPolarization,
+                relaxationTimeConstant: tempParams.relaxationTimeConstant
+              };
+              setParams(newParams);
+              setHe3Data(calculateHe3Polarization(newParams));
+            }}
             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Set Parameters
@@ -661,7 +634,14 @@ export default function PolarizationPlot() {
         {/* Set Parameters Button */}
         <div className="flex justify-end mb-6">
           <button
-            onClick={handleNeutronParamsUpdate}
+            onClick={() => {
+              const newParams = {
+                ...params,
+                neutronParams: tempParams.neutronParams
+              };
+              setParams(newParams);
+              setNeutronData(calculateNeutronProperties(newParams));
+            }}
             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Set Parameters
