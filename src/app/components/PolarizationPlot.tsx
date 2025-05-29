@@ -277,10 +277,10 @@ export default function PolarizationPlot() {
     };
   };
 
-  const xMin = Number(axisRanges.he3.xMin) || 0;
-  const xMax = Number(axisRanges.he3.xMax) || 24;
-  const yMin = Number(axisRanges.he3.yMin) || 0;
-  const yMax = Number(axisRanges.he3.yMax) || 80;
+  // const xMin = Number(axisRanges.he3.xMin) || 0;
+  // const xMax = Number(axisRanges.he3.xMax) || 24;
+  // const yMin = Number(axisRanges.he3.yMin) || 0;
+  // const yMax = Number(axisRanges.he3.yMax) || 80;
 
   return (
     <div className="space-y-6">
