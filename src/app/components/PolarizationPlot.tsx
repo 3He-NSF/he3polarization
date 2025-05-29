@@ -248,14 +248,11 @@ export default function PolarizationPlot() {
       }
     }));
 
-    const newXMin = Number(field === 'xMin' ? value : axisRanges[graph].xMin);
-    const newXMax = Number(field === 'xMax' ? value : axisRanges[graph].xMax);
-    if (!isNaN(newXMin) && !isNaN(newXMax) && newXMin < newXMax) {
-      const newHe3Data = calculateHe3Polarization(params);
-      const newNeutronData = calculateNeutronProperties(params);
-      setHe3Data(newHe3Data);
-      setNeutronData(newNeutronData);
-    }
+    // 新しい値でグラフデータを更新
+    const newHe3Data = calculateHe3Polarization(params);
+    const newNeutronData = calculateNeutronProperties(params);
+    setHe3Data(newHe3Data);
+    setNeutronData(newNeutronData);
   };
 
   useEffect(() => {
@@ -263,7 +260,7 @@ export default function PolarizationPlot() {
     const initialNeutronData = calculateNeutronProperties(params);
     setHe3Data(initialHe3Data);
     setNeutronData(initialNeutronData);
-  }, []);
+  }, [params, calculateHe3Polarization, calculateNeutronProperties]);
 
   // He-3グラフのデータ
   const he3GraphData = he3Data;

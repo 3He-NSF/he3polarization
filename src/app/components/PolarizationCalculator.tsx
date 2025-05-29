@@ -9,8 +9,6 @@ interface CalculationParams {
 
 // ここに実際の計算ロジックを実装します
 export function calculateRelaxationTime(params: CalculationParams): number {
-  const { gasThickness } = params;
-
   // TODO: ここに実際の計算式を実装
   // 現在はダミー値を返しています
   return 100;
