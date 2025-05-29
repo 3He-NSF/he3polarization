@@ -3,9 +3,8 @@
 import { useState } from 'react';
 
 interface CalculationParams {
-  gasThickness: number;  // atm cm unit
-  initialPolarization: number;  // % unit
-  relaxationTimeConstant: number;  // hour unit
+  initialPolarization: number;
+  relaxationTimeConstant: number;
 }
 
 // ここに実際の計算ロジックを実装します
@@ -29,9 +28,8 @@ export default function PolarizationCalculator({
   onParamsUpdate: (params: CalculationParams) => void
 }) {
   const [inputValues, setInputValues] = useState({
-    gasThickness: "20.0",
-    initialPolarization: "70",
-    relaxationTimeConstant: "100",
+    initialPolarization: "70.0",
+    relaxationTimeConstant: "100.0"
   });
 
   const handleInputChange = (field: keyof typeof inputValues, value: string) => {
@@ -41,9 +39,9 @@ export default function PolarizationCalculator({
     }));
   };
 
-  const handleSetParams = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const params: CalculationParams = {
-      gasThickness: parseFloat(inputValues.gasThickness) || 0,
       initialPolarization: parseFloat(inputValues.initialPolarization) || 0,
       relaxationTimeConstant: parseFloat(inputValues.relaxationTimeConstant) || 0,
     };
@@ -55,46 +53,34 @@ export default function PolarizationCalculator({
       <h3 className="text-xl font-bold mb-4">Calculation Parameters</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">3He Gas Thickness (atm cm)</label>
-          <input
-            type="number"
-            value={inputValues.gasThickness}
-            onChange={(e) => handleInputChange("gasThickness", e.target.value)}
-            step="0.1"
-            min="0"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
           <label className="block text-sm font-medium text-gray-700">Initial Polarization (%)</label>
           <input
             type="number"
             value={inputValues.initialPolarization}
             onChange={(e) => handleInputChange("initialPolarization", e.target.value)}
+            step="0.1"
             min="0"
-            max="100"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Relaxation Time Constant (hour)</label>
+          <label className="block text-sm font-medium text-gray-700">Relaxation Time (hour)</label>
           <input
             type="number"
             value={inputValues.relaxationTimeConstant}
             onChange={(e) => handleInputChange("relaxationTimeConstant", e.target.value)}
-            min="0"
             step="0.1"
+            min="0"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
       </div>
-
       <div className="mt-4">
         <button
-          onClick={handleSetParams}
+          onClick={handleSubmit}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Set Parameters
+          Calculate
         </button>
       </div>
     </div>

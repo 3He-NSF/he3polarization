@@ -239,6 +239,25 @@ export default function PolarizationPlot() {
     setNeutronData(newNeutronData);
   };
 
+  const handleAxisRangeChange = (graph: 'he3' | 'neutron', field: keyof typeof axisRanges.he3, value: string) => {
+    setAxisRanges(prev => ({
+      ...prev,
+      [graph]: {
+        ...prev[graph],
+        [field]: value
+      }
+    }));
+
+    const newXMin = Number(field === 'xMin' ? value : axisRanges[graph].xMin);
+    const newXMax = Number(field === 'xMax' ? value : axisRanges[graph].xMax);
+    if (!isNaN(newXMin) && !isNaN(newXMax) && newXMin < newXMax) {
+      const newHe3Data = calculateHe3Polarization(params);
+      const newNeutronData = calculateNeutronProperties(params);
+      setHe3Data(newHe3Data);
+      setNeutronData(newNeutronData);
+    }
+  };
+
   useEffect(() => {
     const initialHe3Data = calculateHe3Polarization(params);
     const initialNeutronData = calculateNeutronProperties(params);
@@ -251,25 +270,6 @@ export default function PolarizationPlot() {
 
   // Neutronグラフのデータ
   const neutronGraphData = neutronData;
-
-  const handleAxisRangeChange = (graph: 'he3' | 'neutron', field: keyof typeof axisRanges.he3, value: string) => {
-    setAxisRanges(prev => ({
-      ...prev,
-      [graph]: {
-        ...prev[graph],
-        [field]: value
-      }
-    }));
-
-    const xMin = Number(field === 'xMin' ? value : axisRanges[graph].xMin);
-    const xMax = Number(field === 'xMax' ? value : axisRanges[graph].xMax);
-    if (!isNaN(xMin) && !isNaN(xMax) && xMin < xMax) {
-      const he3Data = calculateHe3Polarization(params);
-      setHe3Data(he3Data);
-      const neutronData = calculateNeutronProperties(params);
-      setNeutronData(neutronData);
-    }
-  };
 
   const generateLogTicks = (min: number, max: number) => {
     const ticks: number[] = [];
@@ -320,13 +320,6 @@ export default function PolarizationPlot() {
       dataKey: params.xAxisUnit === 'wavelength' ? 'wavelength' : 'energy'
     };
   };
-
-  useEffect(() => {
-    const initialHe3Data = calculateHe3Polarization(params);
-    const initialNeutronData = calculateNeutronProperties(params);
-    setHe3Data(initialHe3Data);
-    setNeutronData(initialNeutronData);
-  }, []);
 
   const xMin = Number(axisRanges.he3.xMin) || 0;
   const xMax = Number(axisRanges.he3.xMax) || 24;
