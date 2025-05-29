@@ -674,19 +674,19 @@ export default function PolarizationPlot() {
                   offset: 0
                 }}
                 type="number"
-                scale={params.xAxisUnit === 'wavelength' && isLogScale ? 'log' : 'auto'}
+                scale={isLogScale ? 'log' : 'auto'}
                 domain={[
-                  params.xAxisUnit === 'wavelength' && isLogScale ?
+                  isLogScale ?
                     Math.max(0.1, Number(axisRanges.neutron.xMin) || 0.1) :
                     Number(axisRanges.neutron.xMin) || 0,
                   Number(axisRanges.neutron.xMax) || 10
                 ]}
                 ticks={generateTicks(
-                  params.xAxisUnit === 'wavelength' && isLogScale ?
+                  isLogScale ?
                     Math.max(0.1, Number(axisRanges.neutron.xMin) || 0.1) :
                     Number(axisRanges.neutron.xMin) || 0,
                   Number(axisRanges.neutron.xMax) || 10,
-                  params.xAxisUnit === 'wavelength' && isLogScale
+                  isLogScale
                 )}
                 tickFormatter={(value) => value.toFixed(1)}
               />
