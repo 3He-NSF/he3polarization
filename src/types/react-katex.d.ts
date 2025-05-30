@@ -12,7 +12,7 @@ declare module 'react-katex' {
       errorColor?: string;
       macros?: { [key: string]: string };
       colorIsTextColor?: boolean;
-      strict?: boolean | string | Function;
+      strict?: boolean | 'error' | 'warn' | 'ignore' | ((errorCode: string) => 'error' | 'warn' | 'ignore');
       maxSize?: number;
       maxExpand?: number;
       fleqn?: boolean;
