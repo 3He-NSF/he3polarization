@@ -6,7 +6,17 @@ declare module 'react-katex' {
     block?: boolean;
     errorColor?: string;
     renderError?: (error: Error | TypeError) => ReactNode;
-    settings?: any;
+    settings?: {
+      displayMode?: boolean;
+      throwOnError?: boolean;
+      errorColor?: string;
+      macros?: { [key: string]: string };
+      colorIsTextColor?: boolean;
+      strict?: boolean | string | Function;
+      maxSize?: number;
+      maxExpand?: number;
+      fleqn?: boolean;
+    };
   }
 
   export const InlineMath: FC<KaTeXProps>;
