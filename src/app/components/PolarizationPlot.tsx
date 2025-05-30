@@ -12,22 +12,26 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
+// 基本計算パラメータの型定義
 interface BaseCalculationParams {
-  initialPolarization: number;
-  relaxationTimeConstant: number;
+  initialPolarization: number;  // 初期偏極度
+  relaxationTimeConstant: number;  // 緩和時定数
 }
 
+// 中性子パラメータの型定義
 interface NeutronParams {
-  gasThickness: number;
-  wavelength: number;
-  he3Polarization: number;
+  gasThickness: number;  // ガス厚さ
+  wavelength: number;    // 波長
+  he3Polarization: number;  // He-3偏極度
 }
 
+// 全パラメータの型定義
 interface Params extends BaseCalculationParams {
-  xAxisUnit: 'wavelength' | 'energy';
+  xAxisUnit: 'wavelength' | 'energy';  // X軸の単位（波長またはエネルギー）
   neutronParams: NeutronParams;
 }
 
+// データポイントの型定義
 interface DataPoint {
   time: number;
   wavelength: number;
@@ -45,34 +49,39 @@ const PHYSICAL_CONSTANTS = {
   M: 4.002602,       // g/mol (He-3のモル質量)
   Na: 6.0221409e23,  // アボガドロ数 (/mol)
   sigma0: 5333,      // barn @ λ = 1.8Å
-  barn_to_cm2: 1e-24
+  barn_to_cm2: 1e-24 // barn から cm^2 への変換係数
 };
 
+// 共通因子の計算
 function calculateCommonFactors(wavelength: number) {
-  const n = (PHYSICAL_CONSTANTS.rho / PHYSICAL_CONSTANTS.M) * PHYSICAL_CONSTANTS.Na;
-  const sigma = PHYSICAL_CONSTANTS.sigma0 * (wavelength / 1.8); // barn
-  return n * sigma * PHYSICAL_CONSTANTS.barn_to_cm2;
+  const n = (PHYSICAL_CONSTANTS.rho / PHYSICAL_CONSTANTS.M) * PHYSICAL_CONSTANTS.Na;  // 数密度
+  const sigma = PHYSICAL_CONSTANTS.sigma0 * (wavelength / 1.8);  // 断面積（barn）
+  return n * sigma * PHYSICAL_CONSTANTS.barn_to_cm2;  // 単位変換後の値
 }
 
+// 中性子偏極度の計算
 function calculateNeutronPolarization(wavelength: number, he3Polarization: number, gasThickness: number): number {
   const commonFactor = calculateCommonFactors(wavelength);
   const neutronPolarization = Math.tanh(commonFactor * he3Polarization * gasThickness);
-  return neutronPolarization * 100;
+  return neutronPolarization * 100;  // パーセント表示に変換
 }
 
+// 中性子透過率の計算
 function calculateNeutronTransmission(wavelength: number, he3Polarization: number, gasThickness: number): number {
   const commonFactor = calculateCommonFactors(wavelength);
   const factor = commonFactor * gasThickness;
   const neutronTransmission = Math.exp(-factor) * Math.cosh(factor*he3Polarization);
-  return neutronTransmission * 100;
+  return neutronTransmission * 100;  // パーセント表示に変換
 }
+
+// 性能指数の計算
 function calculateFigureOfMerit(wavelength: number, he3Polarization: number, gasThickness: number): number {
   const commonFactor = calculateCommonFactors(wavelength);
   const factor = commonFactor * gasThickness;
   const neutronPolarization = Math.tanh(commonFactor * he3Polarization * gasThickness);
   const neutronTransmission = Math.exp(-factor) * Math.cosh(factor*he3Polarization);
   const FigureOfMerit = neutronPolarization*neutronPolarization*neutronTransmission;
-  return FigureOfMerit * 100;
+  return FigureOfMerit * 100;  // パーセント表示に変換
 }
 
 export default function PolarizationPlot() {
