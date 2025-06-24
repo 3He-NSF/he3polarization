@@ -99,13 +99,13 @@ export default function PolarizationPlot() {
   const [axisRanges, setAxisRanges] = useState({
     he3: {
       xMin: "0",
-      xMax: "24",
+      xMax: "100",
       yMin: "0",
       yMax: "80"  // 最大値を80%に調整
     },
     neutron: {
       xMin: "0",
-      xMax: "10",
+      xMax: "0.1",  // eV単位に合わせて調整
       yMin: "0",
       yMax: "100"
     }
@@ -129,8 +129,8 @@ export default function PolarizationPlot() {
 
   // データポイントの計算を別関数に分離
   const addDataPoint = useCallback((x: number, currentParams: Params, points: DataPoint[]) => {
-    const wavelength = currentParams.xAxisUnit === 'wavelength' ? x : Math.sqrt(81.81 / x);
-    const energy = currentParams.xAxisUnit === 'wavelength' ? 81.81 / (x * x) : x;
+    const wavelength = currentParams.xAxisUnit === 'wavelength' ? x : Math.sqrt(0.08181 / x);
+    const energy = currentParams.xAxisUnit === 'wavelength' ? 0.08181 / (x * x) : x;
 
     const neutronPolarization = calculateNeutronPolarization(
       wavelength,
@@ -174,7 +174,7 @@ export default function PolarizationPlot() {
       points.push({
         time,
         wavelength: currentParams.neutronParams.wavelength,
-        energy: 81.81 / (currentParams.neutronParams.wavelength * currentParams.neutronParams.wavelength),
+        energy: 0.08181 / (currentParams.neutronParams.wavelength * currentParams.neutronParams.wavelength),
         he3Polarization,
         neutronPolarization: 0,
         neutronTransmission: 0,
@@ -187,8 +187,8 @@ export default function PolarizationPlot() {
 
   const calculateNeutronProperties = useCallback((currentParams: Params) => {
     const xMin = Number(axisRanges.neutron.xMin) || 0;
-    const xMax = Number(axisRanges.neutron.xMax) || 10;
-    const effectiveXMin = isLogScale ? Math.max(0.1, xMin) : xMin;
+    const xMax = Number(axisRanges.neutron.xMax) || 0.1;  // eV単位に合わせて調整
+    const effectiveXMin = isLogScale ? Math.max(0.001, xMin) : xMin;  // eV単位に合わせて調整
     const points: DataPoint[] = [];
     const numPoints = 200;
 
@@ -264,7 +264,7 @@ export default function PolarizationPlot() {
 
   const generateTicks = (min: number, max: number, useLogScale: boolean = false) => {
     if (useLogScale) {
-      return generateLogTicks(Math.max(0.1, min), max);
+      return generateLogTicks(Math.max(0.001, min), max);  // eV単位に合わせて調整
     }
 
     const range = max - min;
@@ -285,7 +285,7 @@ export default function PolarizationPlot() {
 
   const getXAxisProps = () => {
     return {
-      label: params.xAxisUnit === 'wavelength' ? 'Wavelength (Å)' : 'Energy (meV)',
+      label: params.xAxisUnit === 'wavelength' ? 'Wavelength (Å)' : 'Energy (eV)',
       dataKey: params.xAxisUnit === 'wavelength' ? 'wavelength' : 'energy'
     };
   };
@@ -554,7 +554,7 @@ export default function PolarizationPlot() {
                       }}
                     />
                     <span className="ml-2 text-sm text-gray-700">
-                      Energy (meV)
+                      Energy (eV)
                     </span>
                   </label>
                 </div>
@@ -603,7 +603,7 @@ export default function PolarizationPlot() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  X Min ({params.xAxisUnit === 'wavelength' ? 'Å' : 'meV'})
+                  X Min ({params.xAxisUnit === 'wavelength' ? 'Å' : 'eV'})
                 </label>
                 <input
                   type="text"
@@ -614,7 +614,7 @@ export default function PolarizationPlot() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  X Max ({params.xAxisUnit === 'wavelength' ? 'Å' : 'meV'})
+                  X Max ({params.xAxisUnit === 'wavelength' ? 'Å' : 'eV'})
                 </label>
                 <input
                   type="text"
@@ -686,18 +686,18 @@ export default function PolarizationPlot() {
                 scale={isLogScale ? 'log' : 'auto'}
                 domain={[
                   isLogScale ?
-                    Math.max(0.1, Number(axisRanges.neutron.xMin) || 0.1) :
+                    Math.max(0.001, Number(axisRanges.neutron.xMin) || 0.001) :
                     Number(axisRanges.neutron.xMin) || 0,
-                  Number(axisRanges.neutron.xMax) || 10
+                  Number(axisRanges.neutron.xMax) || 0.1
                 ]}
                 ticks={generateTicks(
                   isLogScale ?
-                    Math.max(0.1, Number(axisRanges.neutron.xMin) || 0.1) :
+                    Math.max(0.001, Number(axisRanges.neutron.xMin) || 0.001) :
                     Number(axisRanges.neutron.xMin) || 0,
-                  Number(axisRanges.neutron.xMax) || 10,
+                  Number(axisRanges.neutron.xMax) || 0.1,
                   isLogScale
                 )}
-                tickFormatter={(value) => value.toFixed(1)}
+                tickFormatter={(value) => value.toFixed(3)}
               />
               <YAxis
                 label={{
@@ -721,7 +721,7 @@ export default function PolarizationPlot() {
               <Tooltip
                 formatter={(value: number) => value.toFixed(1)}
                 labelFormatter={(label: number) => {
-                  const unit = params.xAxisUnit === 'wavelength' ? 'Å' : 'meV';
+                  const unit = params.xAxisUnit === 'wavelength' ? 'Å' : 'eV';
                   return `${isLogScale ? 'log ' : ''}${getXAxisProps().label}: ${label.toFixed(1)} ${unit}`;
                 }}
               />
