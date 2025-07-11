@@ -86,8 +86,8 @@ function calculateFigureOfMerit(wavelength: number, he3Polarization: number, gas
 
 export default function PolarizationPlot() {
   const [params, setParams] = useState<Params>({
-    initialPolarization: 70,
-    relaxationTimeConstant: 100,
+    initialPolarization: 70.0,
+    relaxationTimeConstant: 100.0,
     xAxisUnit: 'wavelength',
     neutronParams: {
       gasThickness: 10.0,
@@ -115,8 +115,8 @@ export default function PolarizationPlot() {
   const [neutronData, setNeutronData] = useState<DataPoint[]>([]);
 
   const [tempParams, setTempParams] = useState<Params>({
-    initialPolarization: 70,
-    relaxationTimeConstant: 100,
+    initialPolarization: 70.0,
+    relaxationTimeConstant: 100.0,
     xAxisUnit: 'wavelength',
     neutronParams: {
       gasThickness: 10.0,
@@ -307,7 +307,8 @@ export default function PolarizationPlot() {
                   Initial Polarization (%)
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"  // 任意の小数値を許可
                   value={tempParams.initialPolarization}
                   onChange={(e) => {
                     const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
@@ -324,7 +325,8 @@ export default function PolarizationPlot() {
                   Relaxation Time (hour)
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={tempParams.relaxationTimeConstant}
                   onChange={(e) => {
                     const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
@@ -346,7 +348,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">X Min (hour)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.he3.xMin}
                   onChange={(e) => handleAxisRangeChange("he3", "xMin", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -355,7 +358,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">X Max (hour)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.he3.xMax}
                   onChange={(e) => handleAxisRangeChange("he3", "xMax", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -364,7 +368,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Y Min (%)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.he3.yMin}
                   onChange={(e) => handleAxisRangeChange("he3", "yMin", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -373,7 +378,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Y Max (%)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.he3.yMax}
                   onChange={(e) => handleAxisRangeChange("he3", "yMax", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -485,7 +491,8 @@ export default function PolarizationPlot() {
                   He-3 Polarization (%)
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={tempParams.neutronParams.he3Polarization}
                   onChange={(e) => {
                     const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
@@ -505,7 +512,8 @@ export default function PolarizationPlot() {
                   He-3 Gas Thickness (atm cm)
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={tempParams.neutronParams.gasThickness}
                   onChange={(e) => {
                     const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
@@ -606,7 +614,8 @@ export default function PolarizationPlot() {
                   X Min ({params.xAxisUnit === 'wavelength' ? 'Å' : 'meV'})
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.neutron.xMin}
                   onChange={(e) => handleAxisRangeChange("neutron", "xMin", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -617,7 +626,8 @@ export default function PolarizationPlot() {
                   X Max ({params.xAxisUnit === 'wavelength' ? 'Å' : 'meV'})
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.neutron.xMax}
                   onChange={(e) => handleAxisRangeChange("neutron", "xMax", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -626,7 +636,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Y Min (%)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.neutron.yMin}
                   onChange={(e) => handleAxisRangeChange("neutron", "yMin", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -635,7 +646,8 @@ export default function PolarizationPlot() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Y Max (%)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any"
                   value={axisRanges.neutron.yMax}
                   onChange={(e) => handleAxisRangeChange("neutron", "yMax", e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
