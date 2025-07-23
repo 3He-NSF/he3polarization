@@ -45,8 +45,7 @@ interface DataPoint {
 
 // 物理定数の定義
 const PHYSICAL_CONSTANTS = {
-  rho: 0.1785e-3,    // g/cm^3 (He-3ガスの密度)
-  M: 4.002602,       // g/mol (He-3のモル質量)
+  V: 22.4e3,  // モル体積 (cm^3/mol)
   Na: 6.0221409e23,  // アボガドロ数 (/mol)
   sigma0: 5333,      // barn @ λ = 1.8Å
   barn_to_cm2: 1e-24 // barn から cm^2 への変換係数
@@ -54,7 +53,7 @@ const PHYSICAL_CONSTANTS = {
 
 // 共通因子の計算
 function calculateCommonFactors(wavelength: number) {
-  const n = (PHYSICAL_CONSTANTS.rho / PHYSICAL_CONSTANTS.M) * PHYSICAL_CONSTANTS.Na;  // 数密度
+  const n = PHYSICAL_CONSTANTS.Na/PHYSICAL_CONSTANTS.V;  // 数密度
   const sigma = PHYSICAL_CONSTANTS.sigma0 * (wavelength / 1.8);  // 断面積（barn）
   return n * sigma * PHYSICAL_CONSTANTS.barn_to_cm2;  // 単位変換後の値
 }
@@ -220,7 +219,7 @@ export default function PolarizationPlot() {
       }
     }));
 
-    // 新しい値でグラフデータを更新
+    // 軸の変更時はデータを再計算
     setHe3Data(calculateHe3Polarization(params));
     setNeutronData(calculateNeutronProperties(params));
   };
@@ -228,11 +227,11 @@ export default function PolarizationPlot() {
   useEffect(() => {
     setHe3Data(calculateHe3Polarization(params));
     setNeutronData(calculateNeutronProperties(params));
-  }, [calculateHe3Polarization, calculateNeutronProperties, params]);
+  }, [calculateHe3Polarization, calculateNeutronProperties, params,axisRanges.he3.yMin,axisRanges.he3.yMax]);
 
   useEffect(() => {
     setNeutronData(calculateNeutronProperties(params));
-  }, [isLogScale, calculateNeutronProperties, params]);
+  }, [isLogScale, calculateNeutronProperties, params,axisRanges.neutron.yMin,axisRanges.neutron.yMax]);
 
   // He-3グラフのデータ
   const he3GraphData = he3Data;
@@ -411,6 +410,7 @@ export default function PolarizationPlot() {
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
+              key={`he3-${Number(axisRanges.he3.xMin)}-${Number(axisRanges.he3.xMax)}-${Number(axisRanges.he3.yMin)}-${Number(axisRanges.he3.yMax)}`}
               data={he3GraphData}
               margin={{
                 top: 20,
@@ -448,12 +448,13 @@ export default function PolarizationPlot() {
                   offset: -5
                 }}
                 domain={[
-                  Number(axisRanges.he3.yMin) || 0,
-                  Number(axisRanges.he3.yMax) || 80
+                  Number(axisRanges.he3.yMin),
+                  Number(axisRanges.he3.yMax)
                 ]}
+                allowDataOverflow={true}
                 ticks={generateTicks(
-                  Number(axisRanges.he3.yMin) || 0,
-                  Number(axisRanges.he3.yMax) || 80,
+                  Number(axisRanges.he3.yMin),
+                  Number(axisRanges.he3.yMax),
                   false
                 )}
                 tickFormatter={(value) => value.toFixed(1)}
@@ -678,6 +679,7 @@ export default function PolarizationPlot() {
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
+              key={`neutron-${axisRanges.neutron.xMin}-${axisRanges.neutron.xMax}-${axisRanges.neutron.yMin}-${axisRanges.neutron.yMax}-${isLogScale}`}
               data={neutronGraphData}
               margin={{
                 top: 20,
@@ -723,6 +725,7 @@ export default function PolarizationPlot() {
                   Number(axisRanges.neutron.yMin) || 0,
                   Number(axisRanges.neutron.yMax) || 100
                 ]}
+                allowDataOverflow={true}
                 ticks={generateTicks(
                   Number(axisRanges.neutron.yMin) || 0,
                   Number(axisRanges.neutron.yMax) || 100,
